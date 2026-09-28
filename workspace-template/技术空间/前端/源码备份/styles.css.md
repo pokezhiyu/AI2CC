@@ -1,0 +1,594 @@
+---
+id: ENGINEERING-SOURCE-SNAKE-CSS
+title: "styles.css 源码快照"
+type: source-snapshot
+domain: engineering
+version: 0.1.0
+status: active
+owner: engineering
+updated: 2026-09-28
+sourcePath: "snake-game/styles.css"
+generatedBy: "scripts/sync-code-backups.mjs"
+related:
+  - ENGINEERING-SOURCE-SNAKE-INDEX
+  - ENGINEERING-ARCH-SNAKE-001
+---
+
+# styles.css 源码快照
+
+> 本文档是 `snake-game/styles.css` 的生成式完整快照，用于 Workspace 内阅读、Agent 上下文加载和 Git 协作交接。可执行源码是唯一实现事实来源，请勿直接编辑代码块；修改源码后运行 `npm run sync:code-backups` 重新生成。
+
+## 文件职责
+
+设计 Token、响应式布局、控件状态与减少动态效果适配。
+
+## 同步约定
+
+- **唯一真源**：`snake-game/styles.css`
+- **生成器**：`scripts/sync-code-backups.mjs`
+- **重新生成**：`npm run sync:code-backups`
+- **版本历史**：由 Git 保存，不在文件名中维护版本号
+
+## 完整源码
+
+```css
+:root {
+  color-scheme: dark;
+  font-family: "Arial Rounded MT Bold", "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  --background: #0d1510;
+  --surface: #141f17;
+  --surface-raised: #1a281e;
+  --surface-muted: #101a13;
+  --board: #0c140f;
+  --line: #29382d;
+  --line-strong: #3b5041;
+  --text: #f2f5ec;
+  --text-secondary: #aebbad;
+  --text-muted: #7f8f81;
+  --lime: #b8f34a;
+  --lime-dark: #789f2d;
+  --lime-soft: #273a1e;
+  --amber: #ffc857;
+  --danger: #ff766b;
+  --focus: #d7ff83;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow: 0 24px 80px rgb(0 0 0 / 28%);
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 8%, rgb(184 243 74 / 8%), transparent 30rem),
+    var(--background);
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button,
+select,
+canvas {
+  outline: none;
+}
+
+button:focus-visible,
+select:focus-visible,
+canvas:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.topbar {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--background);
+  background: var(--lime);
+  border-radius: 12px;
+}
+
+.brand-mark svg {
+  width: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand strong,
+.brand small {
+  display: block;
+}
+
+.brand strong {
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font: 600 10px/1.2 ui-monospace, "Cascadia Code", monospace;
+  letter-spacing: 0.16em;
+}
+
+.topbar-note {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 286px;
+  gap: 28px;
+  padding: 34px 0 28px;
+}
+
+.game-panel,
+.side-panel > section {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+}
+
+.game-panel {
+  min-width: 0;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.game-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.eyebrow,
+.section-label {
+  margin: 0;
+  color: var(--lime);
+  font: 700 11px/1.4 ui-monospace, "Cascadia Code", monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 650px;
+  margin: 8px 0 0;
+  font-size: clamp(26px, 3vw, 42px);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+
+.mode-field {
+  min-width: 172px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.mode-field span {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.mode-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 38px 0 12px;
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.board-frame {
+  position: relative;
+  overflow: hidden;
+  width: min(100%, 680px);
+  margin: 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--board);
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  touch-action: none;
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(8 14 10 / 74%);
+  backdrop-filter: blur(5px);
+  transition: opacity var(--motion-base) ease-out;
+}
+
+.game-overlay[hidden] {
+  display: none;
+}
+
+.overlay-card {
+  width: min(370px, 100%);
+  padding: 26px;
+  text-align: center;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow);
+}
+
+.overlay-kicker {
+  margin: 0 0 8px;
+  color: var(--amber);
+  font: 700 11px/1.4 ui-monospace, "Cascadia Code", monospace;
+  letter-spacing: 0.12em;
+}
+
+.overlay-card h2 {
+  margin: 0;
+  font-size: 25px;
+  letter-spacing: -0.02em;
+}
+
+.overlay-card p:not(.overlay-kicker) {
+  margin: 12px 0 22px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-panel > section {
+  padding: 20px;
+  border-radius: var(--radius-md);
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.score-primary,
+.score-item {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.score-primary {
+  grid-column: 1 / -1;
+}
+
+.score-grid span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.score-grid strong {
+  font: 700 24px/1 ui-monospace, "Cascadia Code", monospace;
+  letter-spacing: 0.04em;
+}
+
+.score-primary strong {
+  color: var(--lime);
+  font-size: 42px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--text-muted);
+  border-radius: 50%;
+}
+
+.status-dot[data-active="true"] {
+  border-color: var(--lime);
+  background: var(--lime);
+}
+
+.button-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.button {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-weight: 750;
+  transition:
+    background-color var(--motion-fast) ease-out,
+    border-color var(--motion-fast) ease-out,
+    transform var(--motion-fast) ease-out;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.button-primary {
+  color: #132008;
+  background: var(--lime);
+}
+
+.button-primary:hover {
+  background: #c8ff63;
+}
+
+.button-secondary {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--surface-raised);
+}
+
+.button-secondary:hover:not(:disabled) {
+  border-color: var(--lime-dark);
+}
+
+.button-quiet {
+  color: var(--text-secondary);
+  border-color: var(--line);
+  background: transparent;
+}
+
+.button-quiet:hover {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+
+.rule-list {
+  display: grid;
+  gap: 14px;
+  margin: 17px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rule-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.rule-list li > span {
+  color: var(--lime-dark);
+  font: 700 11px/1.6 ui-monospace, "Cascadia Code", monospace;
+}
+
+kbd {
+  padding: 2px 5px;
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface-muted);
+  font: 600 11px/1 ui-monospace, monospace;
+}
+
+.mobile-controls {
+  display: none;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(2, 56px);
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.direction-button {
+  display: grid;
+  place-items: center;
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface-raised);
+}
+
+.direction-button:hover,
+.direction-button:active {
+  border-color: var(--lime-dark);
+  background: var(--lime-soft);
+}
+
+.direction-button svg {
+  width: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.direction-up { grid-column: 2; grid-row: 1; }
+.direction-left { grid-column: 1; grid-row: 2; }
+.direction-down { grid-column: 2; grid-row: 2; }
+.direction-right { grid-column: 3; grid-row: 2; }
+
+.footer {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+
+@media (max-width: 960px) {
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rules-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .app-shell {
+    width: min(100% - 20px, 560px);
+  }
+
+  .topbar {
+    min-height: 66px;
+  }
+
+  .topbar-note {
+    display: none;
+  }
+
+  .game-layout {
+    gap: 14px;
+    padding: 18px 0;
+  }
+
+  .game-panel {
+    padding: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .game-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mode-field {
+    min-width: 0;
+  }
+
+  .mobile-controls {
+    display: grid;
+  }
+
+  .side-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rules-panel {
+    grid-column: auto;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 390px) {
+  .overlay-card {
+    padding: 20px 16px;
+  }
+
+  .overlay-card h2 {
+    font-size: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+```

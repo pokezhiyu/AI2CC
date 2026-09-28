@@ -11,6 +11,8 @@
     "test:base-template": "node scripts/validate-base-template-guide.mjs",
     "test:harness": "node scripts/validate-harness-v1.mjs",
     "test:clean-room": "node scripts/validate-clean-room.mjs",
+    "test:snake": "node --test snake-game/game-core.test.js",
+    "sync:code-backups": "node scripts/sync-code-backups.mjs",
     "preview": "vite preview",
     "sync:skills": "node scripts/sync-workspace-skills.mjs"
   },
