@@ -57,10 +57,7 @@ related:
             <small>LIME SNAKE</small>
           </span>
         </a>
-        <div class="topbar-actions">
-          <span class="topbar-note">方向键 / WASD 移动 · 空格暂停</span>
-          <a class="blueprint-link" href="./blueprint.html">制作蓝图</a>
-        </div>
+        <div class="topbar-note">方向键 / WASD 移动 · 空格暂停</div>
       </header>
 
       <main class="game-layout">

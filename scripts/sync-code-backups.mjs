@@ -47,30 +47,6 @@ const snapshots = [
     language: 'javascript',
     responsibility: '核心规则的 Node.js 自动化测试代码。测试策略和结果仍由测试空间维护。',
   },
-  {
-    id: 'ENGINEERING-SOURCE-SNAKE-BLUEPRINT-HTML',
-    title: 'blueprint.html 源码快照',
-    sourcePath: 'snake-game/blueprint.html',
-    targetName: 'blueprint.html.md',
-    language: 'html',
-    responsibility: '制作启动展示页的语义结构、流程图节点、思维导图节点与页面入口。',
-  },
-  {
-    id: 'ENGINEERING-SOURCE-SNAKE-BLUEPRINT-CSS',
-    title: 'blueprint.css 源码快照',
-    sourcePath: 'snake-game/blueprint.css',
-    targetName: 'blueprint.css.md',
-    language: 'css',
-    responsibility: '制作工作台视觉系统、蛇形流程布局、思维导图和响应式状态。',
-  },
-  {
-    id: 'ENGINEERING-SOURCE-SNAKE-BLUEPRINT-JS',
-    title: 'blueprint.js 源码快照',
-    sourcePath: 'snake-game/blueprint.js',
-    targetName: 'blueprint.js.md',
-    language: 'javascript',
-    responsibility: '流程阶段推进、节点直达、思维导图分支切换与可访问状态同步。',
-  },
 ]
 
 function yamlString(value) {
