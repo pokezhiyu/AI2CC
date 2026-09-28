@@ -1,144 +1,132 @@
-# AI Coding Workspace
+# 青柠蛇场
 
-面向 Human 与 AI Agent 协作的本地 Markdown 项目知识空间。
+青柠蛇场是一个无需后端、可直接在浏览器运行的轻量贪吃蛇项目。项目支持键盘、WASD 与触屏方向控制，提供轻松、经典、极速三种模式，并在本地保存各模式最高分。
 
-它以文件、目录和 Git 为基础，将产品、设计、技术、测试与运维知识保存在同一个可阅读、可迁移、可持续维护的 Workspace 中。项目状态不依赖某个 Agent 的聊天记录，换电脑或更换 Coding Agent 后仍可从仓库继续工作。
+本仓库同时使用 AI Coding Workspace 记录产品、设计、技术、测试和运维资料。代码是可运行交付物，`workspace-template/` 中的 Markdown 文档是供 Human 与 Agent 长期协作的项目知识，两者通过 Git 一起维护。
 
-当前版本为 **Base Template V1**。
+## 已实现功能
 
-## 主要功能
+- 24 × 24 方格棋盘与经典贪吃蛇规则
+- 果实随机生成、蛇身增长、计分、升级与逐级加速
+- 轻松、经典、极速三种游戏模式
+- 方向键、WASD、空格暂停、`R` 键重新开始
+- 移动端触屏方向键
+- 按游戏模式保存本地最高分
+- 页面切换到后台时自动暂停
+- 响应式布局、键盘焦点和减少动态效果支持
 
-- 多层级项目知识目录，支持新建、重命名、复制、删除和拖拽移动
-- Markdown 阅读与源码编辑，支持 Frontmatter、代码高亮、任务列表和表格
-- Mermaid 流程图、时序图、状态图等文档图表
-- 全文知识搜索、Heading 锚点、本页目录、Scroll Spy 和 Document Minimap
-- 产品、设计、技术、测试、运维专业 Space
-- Workspace Manifest、Harness 与跨 Agent 协作协议
-- Role 与 Space 写入范围管理
-- 项目内置 Skill 发现、启用、禁用、健康检查和安全删除
-- Project Release 阶段与里程碑管理
-- 面向普通用户的 GitHub 获取、修改查看、保存与上传流程
-- Light、Dark、System 主题与可调整三栏布局
+## 技术方案
 
-## 技术栈
+游戏使用原生 HTML、CSS、JavaScript 和 Canvas 实现，不依赖后端服务。
 
-- Vue 3 + TypeScript
-- Vite
-- Tailwind CSS
-- Pinia + Vue Router
-- markdown-it + gray-matter
-- Mermaid
-- Lucide Icons
+- `snake-game/game-core.js`：游戏状态、移动、碰撞、成长、计分和模式规则
+- `snake-game/game.js`：Canvas 渲染、输入控制、定时调度和本地最高分
+- `snake-game/index.html`：游戏页面结构与可访问语义
+- `snake-game/styles.css`：视觉样式、响应式布局和控件状态
+- `snake-game/game-core.test.js`：核心规则测试文件
+
+Workspace 管理界面使用 Vue 3、TypeScript、Vite、Pinia 和 Vue Router，用于维护跨角色项目资料及本地预览。
 
 ## 环境要求
 
 - Node.js 22.12 或更高版本
 - npm
-- Git（使用 GitHub 同步功能时需要）
+- Git
 
-## 本地启动
-
-克隆 Base Template：
+可使用以下命令检查本机环境：
 
 ```bash
-git clone https://github.com/pokezhiyu/Ai-Workspace.git my-workspace
-cd my-workspace
+node --version
+npm --version
+git --version
 ```
 
-Workspace 会自动把原始仓库识别为模板来源，不会将它视为当前项目的 GitHub 同步目标。首次使用时，在“设置 → 同步”中连接你自己创建的 GitHub 项目仓库即可。
+## 获取项目
 
-安装依赖：
+```bash
+git clone https://github.com/pokezhiyu/AI2CC.git
+cd AI2CC
+```
+
+## 安装依赖
+
+为保证依赖版本与锁文件一致，推荐使用：
 
 ```bash
 npm ci
 ```
 
+如果需要更新依赖，可改用：
+
+```bash
+npm install
+```
+
+## 本地启动
+
 启动开发服务：
 
 ```bash
-npm run dev
+npm run dev -- --host 127.0.0.1
 ```
 
-浏览器访问：
+启动后访问：
 
-```text
-http://localhost:5173
-```
+- 贪吃蛇游戏：<http://127.0.0.1:5173/snake-game/>
+- 项目 Workspace：<http://127.0.0.1:5173/>
 
-首次打开时，按页面提示填写项目名称和介绍，并选择当前工作角色。系统会生成稳定的 Workspace ID、项目首页、Project Harness 和初始 Release。
-
-## 本地部署
-
-构建生产版本：
+如果当前 Windows 环境运行最新版 Vite 时出现原生构建进程内存不足，可使用已经验证过的兼容启动方式：
 
 ```bash
-npm run build
+npm exec --yes --package=vite@7.2.2 -- vite --host 127.0.0.1
 ```
-
-启动本地生产预览：
-
-```bash
-npm run preview -- --host 0.0.0.0
-```
-
-默认访问地址：
-
-```text
-http://localhost:4173
-```
-
-这种方式会保留当前 V1 的本地 Git 与 Workspace Skill 管理能力，适合个人电脑或可信的团队内网环境。
-
-> Git 与 Skill 接口会操作运行机器上的项目文件。不要把完整本地服务直接暴露到不可信公网。
-
-## 静态托管说明
-
-`npm run build` 会生成 `dist/`，可以部署到常见静态托管平台或静态 Web Server。
-
-纯静态部署可以使用 Markdown 阅读编辑、目录、搜索、主题等浏览器能力，但无法直接使用依赖本机文件系统的 Git 同步和 Skill 文件管理。当前 Base Template V1 不包含云端后端服务。
 
 ## 常用命令
 
 ```bash
-# TypeScript 检查
-npm run typecheck
+# 启动开发服务
+npm run dev
 
-# 生产构建
+# 构建生产静态资源
 npm run build
 
-# Clean Room 初始化状态检查
-npm run test:clean-room
+# 预览生产构建
+npm run preview -- --host 127.0.0.1
 
-# Harness 规则检查
-npm run test:harness
+# TypeScript 类型检查
+npm run typecheck
 
-# Agent Protocol 检查
-npm run test:agent-protocol
+# 运行贪吃蛇核心规则测试
+npm run test:snake
 
-# Base Template 指南检查
-npm run test:base-template
+# 将真实源码同步成技术空间中的 Markdown 备份
+npm run sync:code-backups
 ```
 
 ## 项目结构
 
 ```text
-src/                Workspace 前端应用
-server/             本地 Git 与 Skill 服务
-scripts/            Base Template 与协议校验脚本
-workspace-template/ Workspace Kernel、模板、Roles、Spaces 与 Skills
-public/              公共静态资源
+snake-game/                          贪吃蛇可运行源码
+workspace-template/产品空间/         产品愿景、需求与迭代计划
+workspace-template/设计空间/         交互与 UI 设计资料
+workspace-template/技术空间/         架构、ADR、实现说明和源码备份
+workspace-template/测试空间/         测试计划、用例与验收记录
+workspace-template/运维空间/         环境、部署与发布记录
+src/                                 Workspace 管理界面源码
+server/                              本地 Git 与 Skill 服务
+scripts/                             校验和源码备份同步脚本
 ```
 
-`workspace-template/.workspace/` 是系统层入口。普通项目知识通过 Workspace 界面维护，Agent 则从 Manifest、Agent Protocol 和 Harness 按需加载上下文。
+## 代码与文档协同约定
 
-## 数据与安全
+- 可运行代码以 `snake-game/` 为准。
+- 技术空间的源码备份用于 Agent 阅读和长期项目记录，不替代真实源码。
+- 代码变化后运行 `npm run sync:code-backups`，再同时提交源码和生成的 Markdown。
+- 产品范围、设计决策、架构变化、测试结论和部署方式分别写入对应专业空间。
+- Git 保存版本历史；当前有效的项目事实应保存在仓库文件中，而不是只留在聊天记录里。
 
-- Token、密码和 Credential 不会写入 Workspace
-- GitHub 身份认证使用当前系统已有的 Git Credential
-- 正式 Skills 位于项目内部，可随 Git 一起迁移
-- Workspace Registry 不保存用户目录或机器绝对路径
-- 项目知识与 Git 历史是跨 Agent 交接的事实来源
+## 部署边界
 
-## 当前边界
+当前仓库和 Workspace 用于研发、记录、协作与本地测试，不是正式生产环境。
 
-Base Template V1 以本地单人使用为主，不包含多人实时协作、云端数据库、Agent Runtime、RAG、Vector DB、知识图谱、Pull Request 管理或可视化 Git 冲突合并。
+正式上线时可将 `snake-game/` 作为纯静态站点部署到独立 Web Server 或静态托管平台。V1 不需要业务 API、数据库、账号系统或云端存储；如以后增加远程排行榜，需要先补充产品需求、隐私设计、后端架构与技术决策记录。
