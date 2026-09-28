@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.1",
   "workspace": {
-    "id": "",
-    "name": "",
-    "description": "",
+    "id": "ai2cc",
+    "name": "tanchishe",
+    "description": "贪吃蛇小游戏",
     "language": "zh-CN"
   },
   "entrypoints": {

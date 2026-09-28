@@ -1,5 +1,18 @@
 {
   "schemaVersion": "1.0",
-  "current": null,
-  "releases": []
+  "current": "v1",
+  "releases": [
+    {
+      "id": "v1",
+      "name": "V1 初始阶段",
+      "status": "active",
+      "goal": "建立 AI2CC 的首批有效知识与可执行项目上下文。",
+      "summary": "完成 Workspace 初始化，开始沉淀需求、设计、技术、测试与运维知识。",
+      "startedAt": "2026-09-28",
+      "releasedAt": null,
+      "previous": null,
+      "gitTag": null,
+      "summaryPath": ".workspace/releases/v1.md"
+    }
+  ]
 }
