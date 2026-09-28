@@ -1,0 +1,169 @@
+---
+id: ENGINEERING-SOURCE-SNAKE-BLUEPRINT-HTML
+title: "blueprint.html 源码快照"
+type: source-snapshot
+domain: engineering
+version: 0.1.0
+status: active
+owner: engineering
+updated: 2026-09-28
+sourcePath: "snake-game/blueprint.html"
+generatedBy: "scripts/sync-code-backups.mjs"
+related:
+  - ENGINEERING-SOURCE-SNAKE-INDEX
+  - ENGINEERING-ARCH-SNAKE-001
+---
+
+# blueprint.html 源码快照
+
+> 本文档是 `snake-game/blueprint.html` 的生成式完整快照，用于 Workspace 内阅读、Agent 上下文加载和 Git 协作交接。可执行源码是唯一实现事实来源，请勿直接编辑代码块；修改源码后运行 `npm run sync:code-backups` 重新生成。
+
+## 文件职责
+
+制作启动展示页的语义结构、流程图节点、思维导图节点与页面入口。
+
+## 同步约定
+
+- **唯一真源**：`snake-game/blueprint.html`
+- **生成器**：`scripts/sync-code-backups.mjs`
+- **重新生成**：`npm run sync:code-backups`
+- **版本历史**：由 Git 保存，不在文件名中维护版本号
+
+## 完整源码
+
+```html
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#edf2ea" />
+    <meta name="description" content="青柠蛇场从想法到可发布版本的交互式制作蓝图。" />
+    <title>青柠蛇场 · 制作蓝图</title>
+    <link rel="stylesheet" href="./blueprint.css" />
+  </head>
+  <body>
+    <header class="blueprint-header">
+      <a class="blueprint-brand" href="./" aria-label="返回青柠蛇场游戏">
+        <span class="blueprint-mark" aria-hidden="true">S</span>
+        <span><strong>青柠蛇场</strong><small>制作蓝图</small></span>
+      </a>
+      <a class="game-link" href="./">进入游戏</a>
+    </header>
+
+    <main>
+      <section class="launch" aria-labelledby="launch-title">
+        <div class="launch-copy">
+          <p class="coordinate">项目坐标 / V1 / 浏览器游戏</p>
+          <h1 id="launch-title">让第一格移动之前，先看清整条制作路线。</h1>
+          <p class="launch-intro">点击启动一次完整的制作演示。流程节点记录每个阶段的负责人、产出和完成条件；思维导图解释它们为什么共同构成一个可交付的贪吃蛇。</p>
+          <div class="launch-actions">
+            <button class="primary-action" id="begin-build" type="button">开始制作演示</button>
+            <button class="secondary-action" id="next-stage" type="button" disabled>进入下一阶段</button>
+          </div>
+        </div>
+
+        <div class="launch-console" aria-live="polite">
+          <span class="console-led" aria-hidden="true"></span>
+          <div>
+            <small>当前状态</small>
+            <strong id="build-status">蓝图待启动</strong>
+          </div>
+          <dl>
+            <div><dt>目标</dt><dd>可玩的 V1</dd></div>
+            <div><dt>技术</dt><dd>Canvas + 原生 JS</dd></div>
+            <div><dt>交付</dt><dd>静态站点</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="workflow-section" id="workflow" aria-labelledby="workflow-title">
+        <div class="section-heading">
+          <div>
+            <p>制作流程图</p>
+            <h2 id="workflow-title">沿着蛇形路线，把想法变成版本。</h2>
+          </div>
+          <output id="stage-counter">未开始</output>
+        </div>
+
+        <div class="route-board">
+          <svg class="route-line" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M90 92 H790 Q890 92 890 192 Q890 282 790 282 H210" />
+          </svg>
+          <ol class="stage-list" aria-label="游戏制作阶段">
+            <li class="stage-position stage-position-1"><button class="stage-node" type="button" data-stage="0"><span>01</span>产品定义</button></li>
+            <li class="stage-position stage-position-2"><button class="stage-node" type="button" data-stage="1"><span>02</span>玩法设计</button></li>
+            <li class="stage-position stage-position-3"><button class="stage-node" type="button" data-stage="2"><span>03</span>视觉交互</button></li>
+            <li class="stage-position stage-position-4"><button class="stage-node" type="button" data-stage="3"><span>04</span>核心开发</button></li>
+            <li class="stage-position stage-position-5"><button class="stage-node" type="button" data-stage="4"><span>05</span>体验验证</button></li>
+            <li class="stage-position stage-position-6"><button class="stage-node" type="button" data-stage="5"><span>06</span>发布准备</button></li>
+          </ol>
+        </div>
+
+        <article class="stage-detail" id="stage-detail" aria-live="polite">
+          <div class="stage-index" id="stage-index">00</div>
+          <div class="stage-summary">
+            <span id="stage-owner">等待启动</span>
+            <h3 id="stage-title">点击“开始制作演示”</h3>
+            <p id="stage-copy">我们会从产品目标开始，逐步走到独立生产环境的发布准备。</p>
+          </div>
+          <dl class="stage-facts">
+            <div><dt>阶段产出</dt><dd id="stage-output">—</dd></div>
+            <div><dt>完成条件</dt><dd id="stage-done">—</dd></div>
+          </dl>
+        </article>
+      </section>
+
+      <section class="mindmap-section" aria-labelledby="mindmap-title">
+        <div class="section-heading">
+          <div>
+            <p>项目思维导图</p>
+            <h2 id="mindmap-title">四条分支，共同约束游戏体验。</h2>
+          </div>
+          <span class="section-hint">点击分支查看内容</span>
+        </div>
+
+        <div class="mindmap-layout">
+          <div class="mindmap-canvas" role="group" aria-label="青柠蛇场项目思维导图">
+            <svg class="mindmap-lines" viewBox="0 0 700 460" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M350 230 C270 230 260 100 160 100 M350 230 C430 230 440 100 540 100 M350 230 C270 230 260 360 160 360 M350 230 C430 230 440 360 540 360" />
+            </svg>
+            <div class="mindmap-core"><span>项目核心</span><strong>青柠蛇场</strong></div>
+            <button class="mind-branch mind-branch-play" type="button" data-mind="play" aria-pressed="true"><span>玩法系统</span><small>移动 · 果实 · 碰撞</small></button>
+            <button class="mind-branch mind-branch-experience" type="button" data-mind="experience" aria-pressed="false"><span>玩家体验</span><small>输入 · 反馈 · 节奏</small></button>
+            <button class="mind-branch mind-branch-tech" type="button" data-mind="tech" aria-pressed="false"><span>技术实现</span><small>状态 · Canvas · 存储</small></button>
+            <button class="mind-branch mind-branch-delivery" type="button" data-mind="delivery" aria-pressed="false"><span>协作交付</span><small>Workspace · Git · 部署</small></button>
+          </div>
+
+          <article class="mind-detail" aria-live="polite">
+            <span id="mind-label">玩法系统</span>
+            <h3 id="mind-title">一眼理解，一步学会。</h3>
+            <p id="mind-copy">蛇持续移动；玩家只改变方向。吃到果实后增长并得分，碰墙或碰到自己结束。</p>
+            <ul id="mind-items">
+              <li>三种模式共享同一套核心状态</li>
+              <li>果实不会生成在蛇身上</li>
+              <li>禁止直接反向移动</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="handoff" aria-labelledby="handoff-title">
+        <p id="handoff-title">从蓝图继续</p>
+        <div>
+          <h2>准备好后，直接进入可玩的版本。</h2>
+          <p>演示页负责解释制作路径；游戏页负责验证最终体验。</p>
+        </div>
+        <a href="./">打开青柠蛇场</a>
+      </section>
+    </main>
+
+    <footer class="blueprint-footer">
+      <span>青柠蛇场制作蓝图</span>
+      <span>产品 → 设计 → 开发 → 验证 → 交付</span>
+    </footer>
+
+    <script type="module" src="./blueprint.js"></script>
+  </body>
+</html>
+```

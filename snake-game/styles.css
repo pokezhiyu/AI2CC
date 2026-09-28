@@ -136,6 +136,31 @@ button:disabled {
   font-size: 13px;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.blueprint-link {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  padding: 0 14px;
+  color: var(--lime);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.blueprint-link:hover {
+  color: var(--background);
+  background: var(--lime);
+  border-color: var(--lime);
+}
+
 .game-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 286px;

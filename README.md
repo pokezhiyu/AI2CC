@@ -73,6 +73,7 @@ npm run dev -- --host 127.0.0.1
 启动后访问：
 
 - 贪吃蛇游戏：<http://127.0.0.1:5173/snake-game/>
+- 交互式制作蓝图：<http://127.0.0.1:5173/snake-game/blueprint.html>
 - 项目 Workspace：<http://127.0.0.1:5173/>
 
 如果当前 Windows 环境运行最新版 Vite 时出现原生构建进程内存不足，可使用已经验证过的兼容启动方式：
