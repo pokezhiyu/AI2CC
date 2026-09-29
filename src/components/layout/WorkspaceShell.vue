@@ -104,6 +104,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  store.stopLocalDocumentSync()
   window.removeEventListener('keydown', handleShortcut)
   window.removeEventListener('beforeunload', handleBeforeUnload)
 })

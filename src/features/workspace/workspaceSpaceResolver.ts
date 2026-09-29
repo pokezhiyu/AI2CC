@@ -1,5 +1,5 @@
 import type { WorkspaceSpaceDefinition } from '@/types/workspace'
-import { normalizePath } from '@/utils/path'
+import { normalizePath } from '../../utils/path'
 
 export function resolveSpaceFromPath(
   path: string,

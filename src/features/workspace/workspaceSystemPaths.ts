@@ -1,5 +1,5 @@
 import type { WorkspaceEntry } from '@/types/workspace'
-import { normalizePath } from '@/utils/path'
+import { normalizePath } from '../../utils/path'
 
 export const WORKSPACE_SYSTEM_DIRECTORY = '.workspace'
 export const WORKSPACE_SYSTEM_PATH_ROOTS = [

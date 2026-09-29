@@ -1,6 +1,6 @@
 import matter from 'gray-matter'
 import type { DocumentMetadata, WorkspaceDocument } from '@/types/workspace'
-import { displayName } from '@/utils/path'
+import { displayName } from './path'
 
 function stringValue(value: unknown): string | undefined {
   if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString().slice(0, 10)

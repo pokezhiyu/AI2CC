@@ -10,6 +10,8 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "types": ["node"],
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
     "noEmit": true,
     "strict": true
   },

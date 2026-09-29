@@ -1,7 +1,7 @@
 ---
 id: HARNESS-DESIGN-INTERACTION-001
 title: "Design Document Interaction"
-type: harness-rule
+type: harness-project-rule
 domain: design
 version: 1.0.0
 status: active

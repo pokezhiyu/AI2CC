@@ -6,9 +6,9 @@ import type {
   WorkspaceRoleDefinition,
 } from '@/types/roles'
 import type { WorkspaceEntry, WorkspaceSpaceDefinition } from '@/types/workspace'
-import { parseWorkspaceConfig } from '@/features/workspace/workspaceConfig'
-import { isWorkspaceSystemPath } from '@/features/workspace/workspaceSystemPaths'
-import { resolveSpaceFromPath } from '@/features/workspace/workspaceSpaceResolver'
+import { parseWorkspaceConfig } from '../workspace/workspaceConfig'
+import { isWorkspaceSystemPath } from '../workspace/workspaceSystemPaths'
+import { resolveSpaceFromPath } from '../workspace/workspaceSpaceResolver'
 import {
   ACTIVE_ROLES_PATH,
   discoverWorkspaceRoles,
@@ -31,7 +31,7 @@ export class WorkspaceAccessError extends Error {
 }
 
 export class RoleAccessService {
-  constructor(private readonly systemAdapter: WorkspaceFileAdapter) {}
+  constructor(private readonly systemAdapter: Pick<WorkspaceFileAdapter, 'list'>) {}
 
   getRoles(entries: WorkspaceEntry[]): WorkspaceRoleDefinition[] {
     return discoverWorkspaceRoles(entries)

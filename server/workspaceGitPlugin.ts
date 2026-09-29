@@ -318,7 +318,7 @@ async function materializeWorkspace(entries: WorkspaceSnapshotEntry[], cwd: stri
   await fs.writeFile(indexPath, `${JSON.stringify({ paths: [...currentPaths].sort() }, null, 2)}\n`, 'utf8')
 }
 
-async function readWorkspaceSnapshot(cwd: string): Promise<WorkspaceSnapshotEntry[]> {
+export async function readWorkspaceSnapshot(cwd: string): Promise<WorkspaceSnapshotEntry[]> {
   const root = path.resolve(cwd, 'workspace-template')
   const filePaths = await listTextFiles(root)
   const entries = new Map<string, WorkspaceSnapshotEntry>()

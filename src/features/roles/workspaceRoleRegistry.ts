@@ -1,6 +1,6 @@
 import type { WorkspaceActiveRoleState, WorkspaceRoleDefinition } from '@/types/roles'
 import type { WorkspaceEntry } from '@/types/workspace'
-import { parseDocument } from '@/utils/document'
+import { parseDocument } from '../../utils/document'
 
 function firstBodyParagraph(body: string): string {
   return body

@@ -24,6 +24,7 @@ import {
   WORKSPACE_MANIFEST_PATH,
 } from '@/features/workspace/workspaceManifest'
 import { WorkspaceInitializationService } from '@/features/workspace/WorkspaceInitializationService'
+import { readLocalDocuments, writeLocalDocument } from '@/features/workspace/localDocumentSync'
 import {
   isWorkspaceSystemPath,
   projectKnowledgeEntries as filterProjectKnowledgeEntries,
@@ -105,6 +106,17 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   const editorSource = ref('')
   const saveState = ref<SaveState>('idle')
   const loading = ref(true)
+  const localSyncState = ref<'connecting' | 'connected' | 'offline'>('connecting')
+  const localSyncError = ref('')
+  const localDocumentConflict = ref(false)
+  const browserBackupKey = 'ai-coding-workspace:before-local-document-sync'
+  const hasBrowserBackup = ref(Boolean(localStorage.getItem(browserBackupKey)))
+  let localRevision = ''
+  let localPaths = new Set<string>()
+  let syncTimer: number | undefined
+  let syncing = false
+  let savingToLocal = false
+  let stopSync = true
   const expandedFolders = ref(new Set(['开始阅读', '开始阅读/项目入口']))
   const contextCollapsed = ref(false)
   const sidebarCollapsed = ref(false)
@@ -188,7 +200,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   const projectKnowledgeEntries = computed(() => filterProjectKnowledgeEntries(entries.value))
   const tree = computed(() => toTree(projectKnowledgeEntries.value, spaces.value))
   const documents = computed(() => entries.value.filter((entry) => entry.kind === 'file' && entry.path.endsWith('.md')))
-  const hasUnsavedChanges = computed(() => saveState.value === 'unsaved')
+  const hasUnsavedChanges = computed(() => Boolean(activeDocument.value && editorSource.value !== activeDocument.value.source))
   const currentRelease = computed(() => releaseRegistry.value.releases.find(
     (release) => release.id === releaseRegistry.value.current,
   ) ?? null)
@@ -203,6 +215,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     loading.value = true
     try {
       await refresh()
+      await synchronizeLocalDocuments()
       if (needsWorkspaceInitialization.value) {
         activePath.value = ''
         activeDocument.value = null
@@ -220,7 +233,80 @@ export const useWorkspaceStore = defineStore('workspace', () => {
       if (path) await openDocument(path)
     } finally {
       loading.value = false
+      startLocalDocumentSync()
     }
+  }
+
+  async function synchronizeLocalDocuments(): Promise<void> {
+    if (syncing || savingToLocal) return
+    syncing = true
+    try {
+      const snapshot = await readLocalDocuments(localRevision)
+      if (savingToLocal) return
+      if (snapshot) {
+        const cached = await systemAdapter.list()
+        // Keep the first browser snapshot recoverable before adopting disk as truth.
+        if (!localRevision && !hasBrowserBackup.value && cached.some((entry) =>
+          entry.kind === 'file' && snapshot.entries.some((local) => local.path === entry.path && local.content !== entry.content))) {
+          localStorage.setItem(browserBackupKey, JSON.stringify(cached))
+          hasBrowserBackup.value = true
+        }
+        const local = new Map(snapshot.entries.map((entry) => [entry.path, entry]))
+        const previous = new Map(cached.map((entry) => [entry.path, entry]))
+        const merged = cached.filter((entry) => !local.has(entry.path) && !localPaths.has(entry.path))
+        merged.push(...snapshot.entries.map((entry) => ({ ...entry, order: previous.get(entry.path)?.order })))
+        await systemAdapter.replaceAll(merged)
+        await refresh()
+        const current = local.get(activePath.value)
+        if (activeDocument.value && current?.content !== undefined && current.content !== activeDocument.value.source) {
+          if (hasUnsavedChanges.value) localDocumentConflict.value = true
+          else {
+            activeDocument.value = parseDocument(activePath.value, current.content)
+            editorSource.value = current.content
+            tocBody.value = activeDocument.value.body
+            localDocumentConflict.value = false
+          }
+        } else if (activeDocument.value && localPaths.has(activePath.value) && !current) {
+          if (hasUnsavedChanges.value) localDocumentConflict.value = true
+          else { activeDocument.value = null; editorSource.value = ''; tocBody.value = '' }
+        }
+        localPaths = new Set(local.keys())
+        localRevision = snapshot.revision
+      }
+      localSyncState.value = 'connected'
+      localSyncError.value = ''
+    } catch (error) {
+      localSyncState.value = 'offline'
+      localSyncError.value = error instanceof Error ? error.message : '本地文档同步失败'
+    } finally {
+      syncing = false
+    }
+  }
+
+  function startLocalDocumentSync(): void {
+    stopLocalDocumentSync()
+    stopSync = false
+    const poll = async () => {
+      await synchronizeLocalDocuments()
+      if (!stopSync) syncTimer = window.setTimeout(poll, 1500)
+    }
+    syncTimer = window.setTimeout(poll, 1500)
+  }
+
+  function stopLocalDocumentSync(): void {
+    stopSync = true
+    window.clearTimeout(syncTimer)
+  }
+
+  function downloadBrowserBackup(): void {
+    const source = localStorage.getItem(browserBackupKey)
+    if (!source) return
+    const url = URL.createObjectURL(new Blob([source], { type: 'application/json' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'workspace-browser-backup.json'
+    link.click()
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
   async function refresh(): Promise<void> {
@@ -269,6 +355,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     editorSource.value = source
     tocBody.value = activeDocument.value.body
     saveState.value = 'idle'
+    localDocumentConflict.value = false
     activeHeadingId.value = ''
     expandAncestors(path)
   }
@@ -284,20 +371,33 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 
   async function saveDocument(): Promise<void> {
     if (!activePath.value || !activeDocument.value) return
+    if (savingToLocal) return
+    const path = activePath.value
+    const source = editorSource.value
+    const expected = localPaths.has(path) ? activeDocument.value.source : null
+    savingToLocal = true
     saveState.value = 'saving'
     try {
-      validateDocumentSource(editorSource.value)
-      await adapter.write(activePath.value, editorSource.value)
-      activeDocument.value = parseDocument(activePath.value, editorSource.value)
-      tocBody.value = activeDocument.value.body
+      validateDocumentSource(source)
+      await roleAccessService.assertCanWritePath(path)
+      await writeLocalDocument(path, source, expected)
+      await adapter.write(path, source)
+      localPaths.add(path)
+      if (activePath.value === path) {
+        localDocumentConflict.value = false
+        activeDocument.value = parseDocument(path, source)
+        tocBody.value = parseDocument(path, editorSource.value).body
+      }
       await refresh()
-      saveState.value = 'saved'
+      saveState.value = hasUnsavedChanges.value ? 'unsaved' : 'saved'
       window.setTimeout(() => {
         if (saveState.value === 'saved') saveState.value = 'idle'
       }, 1800)
     } catch (error) {
       saveState.value = 'error'
       throw error
+    } finally {
+      savingToLocal = false
     }
   }
 
@@ -461,7 +561,11 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     let suffix = 2
     while (await adapter.exists(path)) path = joinPath(folderPath, `${slug}-${suffix++}.md`)
     const id = `DOC-${Date.now().toString(36).toUpperCase()}`
-    await adapter.createFile(path, createDocumentSource(title || 'Untitled', id))
+    const source = createDocumentSource(title || 'Untitled', id)
+    await roleAccessService.assertCanWritePath(path)
+    await writeLocalDocument(path, source, null)
+    await adapter.createFile(path, source)
+    localPaths.add(path)
     await refresh()
     expandAncestors(path)
     await openDocument(path)
@@ -525,7 +629,10 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     let copyPath = joinPath(folder, `${stem}-copy.md`)
     let suffix = 2
     while (await adapter.exists(copyPath)) copyPath = joinPath(folder, `${stem}-copy-${suffix++}.md`)
+    await roleAccessService.assertCanWritePath(copyPath)
+    await writeLocalDocument(copyPath, source, null)
     await adapter.createFile(copyPath, source)
+    localPaths.add(copyPath)
     await refresh()
     return copyPath
   }
@@ -591,6 +698,13 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     editorSource,
     saveState,
     loading,
+    localSyncState,
+    localSyncError,
+    localDocumentConflict,
+    hasBrowserBackup,
+    downloadBrowserBackup,
+    synchronizeLocalDocuments,
+    stopLocalDocumentSync,
     expandedFolders,
     hasUnsavedChanges,
     contextCollapsed,
