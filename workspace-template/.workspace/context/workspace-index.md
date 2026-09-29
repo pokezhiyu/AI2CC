@@ -3,10 +3,10 @@ id: INDEX-WORKSPACE-001
 title: "AI2CC Workspace 索引"
 type: index
 domain: workspace
-version: 0.1.0
+version: 0.2.0
 status: active
 owner: product
-updated: 2026-09-28
+updated: 2026-09-29
 related:
   - PROJECT-OVERVIEW-001
 ---
@@ -15,7 +15,7 @@ related:
 
 ## Project
 
-AI垂类知识社区
+青柠蛇场（贪吃蛇小游戏）
 
 ## Current Version
 
@@ -52,3 +52,4 @@ Workspace 已初始化。各专业 Space 已就绪，具体项目知识将随工
 ## Recently Changed
 
 - 2026-09-28：完成 Workspace 初始化。
+- 2026-09-29：设计空间动态交互纳入 Project Harness，交互展示须直接渲染在对应 Markdown 文档中。

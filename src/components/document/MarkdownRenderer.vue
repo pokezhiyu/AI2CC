@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MarkdownIt from 'markdown-it'
 import type { RendererRule } from 'markdown-it'
 import taskLists from 'markdown-it-task-lists'
@@ -8,6 +8,7 @@ import { dirname, joinPath, normalizePath } from '@/utils/path'
 import { createHeadingSlugger, type HeadingSlugger } from '@/utils/headingSlug'
 import { useScrollSpy } from '@/composables/useScrollSpy'
 import { useWorkspaceStore } from '@/stores/workspace'
+import { mountInteractiveDocuments } from './interactiveDocument'
 
 const props = defineProps<{ content: string; path: string }>()
 const emit = defineEmits<{ navigate: [path: string]; 'active-heading': [id: string] }>()
@@ -16,6 +17,7 @@ const root = ref<HTMLElement | null>(null)
 const { activeId, observe, setActive } = useScrollSpy(root)
 const copiedCode = ref('')
 let renderSequence = 0
+let cleanupInteractiveDocuments: (() => void) | null = null
 interface MermaidRuntime {
   initialize: (config: Record<string, unknown>) => void
   run: (options: { nodes: HTMLElement[]; suppressErrors: boolean }) => Promise<void>
@@ -81,6 +83,15 @@ const fenceRule: RendererRule = (tokens, index, options, env, renderer) => {
   if (!token) return ''
   const language = token.info.trim().split(/\s+/)[0] ?? ''
   if (language === 'mermaid') return `<div class="mermaid-wrap"><div class="mermaid">${escapeHtml(token.content)}</div></div>`
+  if (language === 'interaction-flow' || language === 'interaction-mindmap') {
+    try {
+      JSON.parse(token.content)
+      const kind = language === 'interaction-flow' ? 'flow' : 'mindmap'
+      return `<div data-interactive-kind="${kind}" data-config="${encodeURIComponent(token.content)}"></div>`
+    } catch {
+      return '<div class="interactive-document interactive-document--error">互动内容配置无法解析，请检查 JSON。</div>'
+    }
+  }
   const highlighted = defaultFence ? defaultFence(tokens, index, options, env, renderer) : `<pre><code>${escapeHtml(token.content)}</code></pre>`
   return `<div class="code-block"><div class="code-toolbar"><span>${language || 'text'}</span><button type="button" class="copy-code" aria-label="复制代码"><span>复制</span></button></div>${highlighted}</div>`
 }
@@ -121,6 +132,14 @@ async function renderMermaid(): Promise<void> {
   }
 }
 
+async function renderDocumentEnhancements(): Promise<void> {
+  cleanupInteractiveDocuments?.()
+  cleanupInteractiveDocuments = null
+  await renderMermaid()
+  await nextTick()
+  if (root.value) cleanupInteractiveDocuments = mountInteractiveDocuments(root.value)
+}
+
 async function handleClick(event: MouseEvent): Promise<void> {
   const target = event.target as HTMLElement
   const copyButton = target.closest<HTMLButtonElement>('.copy-code')
@@ -151,7 +170,7 @@ async function handleClick(event: MouseEvent): Promise<void> {
 }
 
 watch(() => [props.content, props.path], async () => {
-  await renderMermaid()
+  await renderDocumentEnhancements()
   observe()
 }, { flush: 'post' })
 watch(activeId, (id) => emit('active-heading', id))
@@ -162,10 +181,11 @@ watch(() => store.anchorRequest?.nonce, async () => {
   scrollToHeading(request.id)
 }, { flush: 'post' })
 onMounted(async () => {
-  await renderMermaid()
+  await renderDocumentEnhancements()
   observe()
   if (store.anchorRequest) scrollToHeading(store.anchorRequest.id)
 })
+onBeforeUnmount(() => cleanupInteractiveDocuments?.())
 </script>
 
 <template>
