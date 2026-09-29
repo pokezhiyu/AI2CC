@@ -104,7 +104,7 @@ function mountFlow(container: HTMLElement): () => void {
     track.append(stepButton)
     return stepButton
   })
-  track.style.gridTemplateColumns = `repeat(${steps.length}, minmax(132px, 1fr))`
+  track.style.setProperty('--interactive-flow-columns', String(steps.length))
 
   const progress = element('div', 'interactive-flow__progress')
   progress.setAttribute('aria-hidden', 'true')
