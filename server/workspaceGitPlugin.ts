@@ -22,6 +22,11 @@ interface GitResult {
   code: number
 }
 
+interface GitRunOptions {
+  input?: string
+  env?: NodeJS.ProcessEnv
+}
+
 interface GitChangedFile {
   path: string
   previousPath?: string
@@ -57,15 +62,16 @@ const MAX_BODY_SIZE = 20 * 1024 * 1024
 const MAX_DIFF_SIZE = 300_000
 const BASE_TEMPLATE_REGISTRY_PATH = path.join('workspace-template', '.workspace', 'base-template', 'registry.json')
 
-function runGit(args: string[], cwd: string, timeoutMs = 30_000): Promise<GitResult> {
+function runGit(args: string[], cwd: string, timeoutMs = 30_000, options: GitRunOptions = {}): Promise<GitResult> {
   return new Promise((resolve, reject) => {
     const safeDirectory = path.resolve(cwd).replace(/\\/g, '/')
     const child = spawn('git', ['-c', `safe.directory=${safeDirectory}`, ...args], {
       cwd,
       shell: false,
       windowsHide: true,
-      env: { ...process.env, GIT_TERMINAL_PROMPT: '0', GCM_INTERACTIVE: 'Never' },
+      env: { ...process.env, GIT_TERMINAL_PROMPT: '0', GCM_INTERACTIVE: 'Never', ...options.env },
     })
+    if (options.input !== undefined) child.stdin.end(options.input)
     let stdout = ''
     let stderr = ''
     let settled = false
@@ -421,11 +427,45 @@ async function commitWorkspace(cwd: string, message: string): Promise<{ status: 
   return { status: await getStatus(cwd), commit }
 }
 
+async function githubPushEnvironment(cwd: string, remoteUrl: string | null): Promise<NodeJS.ProcessEnv | undefined> {
+  if (!remoteUrl) return undefined
+  let url: URL
+  try {
+    url = new URL(remoteUrl)
+  } catch {
+    return undefined
+  }
+  if (url.protocol !== 'https:' || url.hostname !== 'github.com') return undefined
+
+  let credentialOutput: string
+  try {
+    credentialOutput = (await runGit(
+      ['credential', 'fill'],
+      cwd,
+      15_000,
+      { input: `protocol=https\nhost=github.com\npath=${url.pathname.replace(/^\//, '')}\n\n` },
+    )).stdout
+  } catch {
+    return undefined
+  }
+  const lines = credentialOutput.split(/\r?\n/)
+  const username = lines.find((line) => line.startsWith('username='))?.slice('username='.length)
+  const password = lines.find((line) => line.startsWith('password='))?.slice('password='.length)
+  if (!username || !password) return undefined
+
+  return {
+    GIT_CONFIG_COUNT: '1',
+    GIT_CONFIG_KEY_0: 'http.https://github.com/.extraHeader',
+    GIT_CONFIG_VALUE_0: `Authorization: Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+  }
+}
+
 async function pushCurrent(cwd: string): Promise<void> {
   const status = await ensureProjectRemote(cwd)
   if (status.state === 'conflict') throw new GitCommandError('存在 Git 冲突，需要处理后继续同步。', { stdout: '', stderr: '', code: 1 }, 'GIT_CONFLICT')
-  if (status.upstream) await runGit(['push'], cwd, 60_000)
-  else if (status.branch) await runGit(['push', '--set-upstream', status.remote, status.branch], cwd, 60_000)
+  const options = { env: await githubPushEnvironment(cwd, status.remoteUrl) }
+  if (status.upstream) await runGit(['push'], cwd, 60_000, options)
+  else if (status.branch) await runGit(['push', '--set-upstream', status.remote, status.branch], cwd, 60_000, options)
   else throw new GitCommandError('当前处于 detached HEAD，无法确定上传分支。', { stdout: '', stderr: '', code: 1 }, 'DETACHED_HEAD')
 }
 
