@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import ArrowDownToLine from '@lucide/vue/dist/esm/icons/arrow-down-to-line.mjs'
 import Check from '@lucide/vue/dist/esm/icons/check.mjs'
 import ChevronDown from '@lucide/vue/dist/esm/icons/chevron-down.mjs'
@@ -36,6 +36,8 @@ const uploadDialogOpen = ref(false)
 const advancedOpen = ref(false)
 const diff = ref('')
 const diffTruncated = ref(false)
+let backgroundStatusRefreshing = false
+let statusRefreshTimer: number | undefined
 
 const isRepository = computed(() => status.value?.isRepository === true)
 const isTemplateSource = computed(() => status.value?.remotePurpose === 'template-source')
@@ -171,6 +173,27 @@ async function refreshStatus(): Promise<void> {
   }
 }
 
+async function refreshStatusInBackground(): Promise<void> {
+  if (document.visibilityState !== 'visible'
+    || operation.value
+    || loading.value
+    || store.loading
+    || uploadDialogOpen.value
+    || backgroundStatusRefreshing) return
+
+  backgroundStatusRefreshing = true
+  try {
+    await fetchStatus()
+    errorMessage.value = ''
+    technicalError.value = ''
+  } catch (error) {
+    successMessage.value = ''
+    applyError(error)
+  } finally {
+    backgroundStatusRefreshing = false
+  }
+}
+
 async function connectGithub(): Promise<void> {
   if (!isGithubUrl(remoteUrl.value)) {
     errorMessage.value = '请输入完整的 GitHub 项目地址，例如 https://github.com/用户名/项目名.git。'
@@ -300,6 +323,10 @@ function stateIcon(): typeof Check {
 }
 
 onMounted(() => {
+  window.addEventListener('focus', refreshStatusInBackground)
+  document.addEventListener('visibilitychange', refreshStatusInBackground)
+  statusRefreshTimer = window.setInterval(() => void refreshStatusInBackground(), 10_000)
+
   if (!store.loading) {
     void refreshStatus()
     return
@@ -310,6 +337,12 @@ onMounted(() => {
     stop()
     void refreshStatus()
   }, { flush: 'post' })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', refreshStatusInBackground)
+  document.removeEventListener('visibilitychange', refreshStatusInBackground)
+  if (statusRefreshTimer !== undefined) window.clearInterval(statusRefreshTimer)
 })
 </script>
 
