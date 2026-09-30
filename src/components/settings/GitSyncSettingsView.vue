@@ -130,6 +130,7 @@ function friendlyError(error: unknown): string {
     case 'PULL_CONFLICT': return '发现内容冲突。你和其他成员修改了相同内容，需要处理冲突后才能继续同步。'
     case 'AUTH_REQUIRED':
     case 'AUTH_REQUIRED_AFTER_COMMIT': return error.message
+    case 'CREDENTIAL_STORE_UNAVAILABLE': return error.message
     case 'REMOTE_UPDATE_REQUIRED': return 'GitHub 上有新的内容，请先获取最新内容后再上传。'
     case 'PULL_FAILED': return error.message
     case 'NETWORK_ERROR': return '暂时无法连接 GitHub，请检查网络后重试。'

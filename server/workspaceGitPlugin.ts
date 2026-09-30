@@ -373,6 +373,9 @@ function sendJson(response: ServerResponse, status: number, payload: object): vo
 
 function classifyGitError(error: GitCommandError): { message: string; code: string; detail: string } {
   const detail = error.message
+  if (/unable to persist credentials with the .* credential store/i.test(detail)) {
+    return { message: '本地同步服务无法访问系统已保存的 GitHub 凭据。请在正常 Windows 终端重启 Workspace 后重试。', code: 'CREDENTIAL_STORE_UNAVAILABLE', detail }
+  }
   if (/authentication failed|could not read username|permission denied \(publickey\)|terminal prompts disabled|http basic: access denied|response: 401|response: 403/i.test(detail)) {
     return { message: '需要先登录 GitHub 才能继续同步。', code: 'AUTH_REQUIRED', detail }
   }
