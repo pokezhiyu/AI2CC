@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import FilePlus2 from '@lucide/vue/dist/esm/icons/file-plus.mjs'
 import FolderPlus from '@lucide/vue/dist/esm/icons/folder-plus.mjs'
+import Download from '@lucide/vue/dist/esm/icons/download.mjs'
 import PanelLeftClose from '@lucide/vue/dist/esm/icons/panel-left-close.mjs'
 import RotateCcw from '@lucide/vue/dist/esm/icons/rotate-ccw.mjs'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
@@ -27,6 +28,14 @@ const selectedIndex = ref(0)
 const moveDestination = ref('')
 const moveSelect = ref<HTMLSelectElement | null>(null)
 const results = computed(() => store.search(query.value))
+const localSyncLabel = computed(() => {
+  if (store.localSyncState === 'connected') return '本地文件已连接 · 自动同步'
+  if (store.localSyncState === 'offline') return '本地同步不可用 · 显示缓存'
+  return '正在连接本地文件…'
+})
+const localSyncTitle = computed(() => store.localSyncState === 'offline'
+  ? `${store.localSyncError || '本地文档同步失败'}（当前显示缓存内容）`
+  : localSyncLabel.value)
 const moveFolders = computed(() => store.entries
   .filter((entry) => entry.kind === 'folder' && !store.isHarnessPath(entry.path))
   .filter((entry) => !target.value || (entry.path !== target.value.path && !entry.path.startsWith(`${target.value.path}/`)))
@@ -185,9 +194,21 @@ async function handleAction(action: TreeAction, node: WorkspaceTreeNode): Promis
       <KnowledgeTree v-else :nodes="store.tree" @open="emit('open', $event)" @action="handleAction" @move="handleMove" />
     </div>
     <div class="sidebar-footer">
-      <RotateCcw :size="13" />
-      <span>已存储到本地</span>
-      <span class="live-dot" />
+      <span class="sidebar-sync-status" role="status" :title="localSyncTitle">
+        <RotateCcw :class="{ spin: store.localSyncState === 'connecting' }" :size="13" />
+        <span>{{ localSyncLabel }}</span>
+        <span class="live-dot" :data-state="store.localSyncState" aria-hidden="true" />
+      </span>
+      <button
+        v-if="store.hasBrowserBackup"
+        class="sidebar-backup-button"
+        type="button"
+        aria-label="下载同步前备份"
+        title="下载同步前备份"
+        @click="store.downloadBrowserBackup"
+      >
+        <Download :size="13" />
+      </button>
     </div>
     <SidebarResizeHandle
       :value="store.sidebarWidth"

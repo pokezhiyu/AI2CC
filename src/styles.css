@@ -151,8 +151,15 @@ kbd { border: 1px solid var(--border-strong); background: var(--surface); border
 .tree-rename { min-width: 0; flex: 1; height: 21px; border: 1px solid var(--accent); border-radius: 4px; background: var(--surface); color: var(--text); padding: 0 5px; font-size: 11.5px; outline: none; }
 .tree-empty { color: var(--text-muted); font-size: 10.5px; font-style: italic; padding: 5px 5px 5px calc(var(--tree-depth) * 15px + 24px); }
 .tree-root-drop-zone { height: 32px; margin: 7px 2px 1px; border: 1px dashed var(--accent-border); border-radius: 6px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 10px; }
-.sidebar-footer { height: 34px; flex: 0 0 auto; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 10.5px; padding: 0 12px; }
-.live-dot { width: 5px; height: 5px; border-radius: 50%; background: #4d9e70; margin-left: auto; }
+.sidebar-footer { height: 34px; flex: 0 0 auto; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 10.5px; padding: 0 8px 0 12px; }
+.sidebar-sync-status { min-width: 0; flex: 1; display: flex; align-items: center; gap: 6px; }
+.sidebar-sync-status > span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.live-dot { width: 5px; height: 5px; flex: 0 0 auto; border-radius: 50%; background: var(--text-muted); margin-left: auto; }
+.live-dot[data-state="connected"] { background: #4d9e70; }
+.live-dot[data-state="offline"] { background: var(--danger); }
+.sidebar-backup-button { width: 24px; height: 24px; flex: 0 0 auto; border: 0; border-radius: 5px; background: transparent; color: var(--text-muted); display: grid; place-items: center; cursor: pointer; }
+.sidebar-backup-button:hover { background: var(--surface-hover); color: var(--text); }
+.sidebar-backup-button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .collapsed-left-rail, .collapsed-right-rail { background: var(--surface-subtle); padding-top: 9px; display: flex; justify-content: center; }
 .collapsed-left-rail { border-right: 1px solid var(--border); }
 .collapsed-right-rail { border-left: 1px solid var(--border); }
