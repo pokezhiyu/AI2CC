@@ -379,6 +379,9 @@ function sendJson(response: ServerResponse, status: number, payload: object): vo
 
 function classifyGitError(error: GitCommandError): { message: string; code: string; detail: string } {
   const detail = error.message
+  if (error.errorCode === 'GIT_TIMEOUT') {
+    return { message: '连接 GitHub 超时，请检查网络后重试。', code: 'NETWORK_ERROR', detail }
+  }
   if (/unable to persist credentials with the .* credential store/i.test(detail)) {
     return { message: '本地同步服务无法访问系统已保存的 GitHub 凭据。请在正常 Windows 终端重启 Workspace 后重试。', code: 'CREDENTIAL_STORE_UNAVAILABLE', detail }
   }
